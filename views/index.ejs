@@ -5,31 +5,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEMO APP</title>
+    <link rel="stylesheet" href="/styles.css" />
 </head>
 
 <body>
-    <h1>Demo express/mongo app</h1>
+    <h2 data-position="header">Quotes app</h2>
 
-    <form action="/quotes" method="POST">
-        <input type="text" placeholder="name" name="name">
-        <input type="text" placeholder="quote" name="quote">
-        <button type="submit">Submit</button>
-    </form>
-    <ul class="quotes">
-        <!-- Loop through quotes -->
-        <% for(var i=0; i < quotes.length; i++) {%>
-            <li class="quote">
-                <!-- Output name from the iterated quote object -->
-                <span>
-                    <%= quotes[i].name %>
-                </span>:
-                <!-- Output quote from the iterated quote object -->
-                <span>
-                    <%= quotes[i].quote %>
-                </span>
-            </li>
+    <section data-position="add-quotes">
+        <h3 id="actionMessage">Add a quote</h3>
+        <!--Method will change for updates to PUT-->
+        <form id="quoteForm" action="/quotes" method="POST" onsubmit="return onSubmit(event)"> 
+            <input id="name" type="text" placeholder="Name" name="name">
+            <input id="quote" type="text" placeholder="Quote" name="quote">
+            <button type="submit">Submit</button>
+            <button id="buttonCancel" type="reset" onclick="cancelEdit()" style="display: none">Cancel</button>
+        </form>
+    </section>
+
+    <section data-position="quotes">
+        <table class="quotes">
+            <caption>Quotes' list</caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="name"> Name </th>
+                    <th scope="col"> Quote </th>
+                    <th scope="col" class="actionButtons"></th>
+                </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through quotes -->
+            <% for(var i=0; i < quotes.length; i++) {%>
+                <tr class="quote" data-id="<%=quotes[i]._id%>">
+                    <!-- Output name from the iterated quote object -->
+                    <td class="name">
+                        <%= quotes[i].name %>
+                    </td>
+                    <!-- Output quote from the iterated quote object -->
+                    <td class="quote">
+                        <%= quotes[i].quote %>
+                    </td>
+                    <td>
+                        <!--Edit button, sets the update action for the selected quote-->
+                        <button type="button" onclick="editQuote('<%=quotes[i]._id%>', '<%=quotes[i].name%>', '<%=quotes[i].quote%>')">Edit</button>
+                        <!--Delete button, deletes the quote from the DB-->
+                        <button type="button" onclick="deleteQuote('<%=quotes[i]._id%>')">Delete</button>
+                    </td>
+                </tr>
             <% } %>
-    </ul>
+            </tbody>
+        </table>
+    </section>
     <script src="/main.js"></script>
 </body>
 

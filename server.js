@@ -1,5 +1,5 @@
 const express = require('express');
-const MongoClient = require('mongodb').MongoClient;
+const { MongoClient, ObjectID }= require('mongodb');
 const app = express();
 const PORT = 8080;
 const DB_URL = 'mongodb://localhost:27017/';
@@ -22,6 +22,7 @@ MongoClient.connect(`${DB_URL}/${DB_NAME}`, {
     app.get("/", (request, response) => {
         Quotes.find().toArray()
             .then((results) => {
+                console.log(results);
                 response.render("index.ejs", {quotes: results});        
             })
             .catch(error => console.error(error));
@@ -34,6 +35,29 @@ MongoClient.connect(`${DB_URL}/${DB_NAME}`, {
                 response.redirect('/');
             })
             .catch(error => console.error(error));
+    });
+
+    app.put('/quotes', (request, response) => {
+        const id = request.body.id
+        Quotes.findOneAndUpdate({
+                _id: ObjectID(id)
+            }, {
+                $set: {
+                    name: request.body.name,
+                    quote: request.body.quote
+                }
+            }, {
+                upsert: true 
+        }).then(result => response.json({success: true}))
+        .catch(error => console.error(error));
+    });
+
+    app.delete('/quotes/:id', (request, response) => {
+        const id = request.params.id;
+        Quotes.deleteOne({
+            _id: ObjectID(id)
+        }).then(result => response.json({deleted: result.deletedCount}))
+        .catch(error => console.error(error));
     });
 
     app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
